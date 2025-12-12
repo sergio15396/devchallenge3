@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penalty Arena</title>
+
+    <!-- ==================== 1. RECURSOS EXTERNOS ==================== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <!-- ==================== 2. CONTENEDOR PRINCIPAL ==================== -->
+    <div class="container">
+        <!-- ==================== 3. HEADER ==================== -->
+        <header>
+            <h1>Penalty Arena</h1>
+        </header>
+
+        <!-- ==================== 4. PANTALLA DE INICIO ==================== -->
+        <div id="startScreen" class="screen active">
+            <div class="start-content">
+                <label for="playerName" class="sr-only">Nombre del jugador</label>
+                <input 
+                    type="text" 
+                    id="playerName" 
+                    placeholder="Introduce tu nombre"
+                    aria-label="Nombre del jugador"
+                    maxlength="20"
+                >
+                <button id="findMatchBtn" class="btn btn-primary" aria-label="Buscar partida">
+                    Buscar partida
+                </button>
+            </div>
+        </div>
+
+        <!-- ==================== 5. PANTALLA DE ESPERA ==================== -->
+        <div id="waitingScreen" class="screen">
+            <div class="waiting-content">
+                <div class="spinner" aria-hidden="true"></div>
+                <p>Buscando un oponente...</p>
+                <button id="cancelSearchBtn" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+
+        <!-- ==================== 6. PANTALLA DE JUEGO ==================== -->
+        <div id="gameScreen" class="screen">
+            <!-- 6.1 HEADER DEL JUEGO (MARCADOR) -->
+            <div class="game-header">
+                <div class="scoreboard">
+                    <div class="player-score">
+                        <span class="player-name" id="player1Name"><span class="player-name-text">Jugador 1</span> <span class="user-icon hidden">(<i class="fa fa-user" aria-hidden="true"></i>)</span></span>
+                        <span class="score" id="player1Score">0</span>
+                    </div>
+                    <div class="vs">VS</div>
+                    <div class="player-score">
+                        <span class="player-name" id="player2Name"><span class="player-name-text">Jugador 2</span> <span class="user-icon hidden">(<i class="fa fa-user" aria-hidden="true"></i>)</span></span>
+                        <span class="score" id="player2Score">0</span>
+                    </div>
+                    <div class="round-info">
+                        <p><strong>Ronda <span id="currentRound">1</span></strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6.2 CONTENIDO DEL JUEGO -->
+            <div class="game-content">
+                
+                <!-- 6.2.1 SELECCIÓN DE MOVIMIENTOS -->
+                <div class="move-selection">
+                    <h2>Tu movimiento</h2>
+                    
+                    <div class="selection-groups-container">
+                        <!-- TIRO (SHOOT) -->
+                        <div class="selection-group">
+                            <h3>Tiro (cuando tú chutas)</h3>
+                            <p class="instruction">Haz clic en la portería para seleccionar dónde chutarás</p>
+                            <div class="goal-container">
+                                <div class="goal-wrapper">
+                                    <img 
+                                        src="img/porteria.png" 
+                                        alt="Porteria para chutar" 
+                                        id="shootGoal" 
+                                        class="goal-image"
+                                    >
+                                    <div class="zone-overlay" id="shootZoneOverlay"></div>
+                                    <div class="selected-zone" id="shootSelectedText"></div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="shootHeight" value="">
+                            <input type="hidden" id="shootDirection" value="">
+                        </div>
+
+                        <!-- PARADA (SAVE) -->
+                        <div class="selection-group">
+                            <h3>Parada (cuando chuta el oponente)</h3>
+                            <p class="instruction">Haz clic en la portería para seleccionar dónde pararás</p>
+                            <div class="goal-container">
+                                <div class="goal-wrapper">
+                                    <img 
+                                        src="img/porteria.png" 
+                                        alt="Porteria para parar" 
+                                        id="saveGoal" 
+                                        class="goal-image"
+                                    >
+                                    <div class="zone-overlay" id="saveZoneOverlay"></div>
+                                    <div class="selected-zone" id="saveSelectedText"></div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="saveHeight" value="">
+                            <input type="hidden" id="saveDirection" value="">
+                        </div>
+                    </div>
+
+                    <!-- BOTÓN DE ENVÍO -->
+                    <button id="submitMoveBtn" class="btn btn-primary" disabled>
+                        Enviar movimiento
+                    </button>
+
+                    <!-- CONTENEDOR DE ESPERA -->
+                    <div class="waiting-container">
+                        <div id="waitingOpponent" class="waiting-opponent hidden">
+                            <div class="spinner" aria-hidden="true"></div>
+                            <p>Esperando que el oponente haga su movimiento...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6.2.2 RESULTADO DE LA RONDA -->
+                <div id="roundResult" class="round-result hidden">
+                    <!-- HEADER -->
+                    <div class="round-result-header">
+                        <h3>Resultado de la ronda</h3>
+                        <button id="scoringInfoBtn" class="info-icon-btn" aria-label="Informació del sistema de puntuació" title="Informació del sistema de puntuació">
+                            <span>ℹ️</span>
+                        </button>
+                    </div>
+                    
+                    <!-- MODAL DE INFORMACIÓN DEL SISTEMA DE PUNTUACIÓN -->
+                    <div id="scoringModal" class="modal hidden">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4>Sistema de puntuación</h4>
+                                <button id="closeModalBtn" class="close-modal-btn" aria-label="Cerrar">×</button>
+                            </div>
+                            <div class="modal-body">
+                                <ul>
+                                    <li>Si el portero no acierta ni la altura ni la dirección del tiro contrario → <strong>0 puntos</strong></li>
+                                    <li>Si el portero acierta sólo la altura o la dirección → <strong>1 punto</strong></li>
+                                    <li>Si el portero acierta tanto la altura como la dirección → <strong>2 puntos</strong></li>
+                                </ul>                   
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ANIMACIÓN DEL RESULTADO -->
+                    <div class="animation-container">
+                        <div class="animation-row">
+                            <!-- JUGADOR 1 -->
+                            <div class="animation-item">
+                                <div class="goal-animation-wrapper">
+                                    <div class="goal-result-wrapper">
+                                        <img src="img/porteria.png" alt="Porteria" class="goal-result-image" id="goalResult1">
+                                        <img src="img/pelota.png" alt="Pelota" class="ball" id="ball1">
+                                        <img src="img/p5.png" alt="Portero" class="zone-indicator" id="zoneIndicator1">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- JUGADOR 2 -->
+                            <div class="animation-item">
+                                <div class="goal-animation-wrapper">
+                                    <div class="goal-result-wrapper">
+                                        <img src="img/porteria.png" alt="Porteria" class="goal-result-image" id="goalResult2">
+                                        <img src="img/pelota.png" alt="Pelota" class="ball" id="ball2">
+                                        <img src="img/p5.png" alt="Portero" class="zone-indicator" id="zoneIndicator2">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- DETALLES DEL RESULTADO -->
+                    <div class="result-details">
+                        <div class="result-item">
+                            <strong id="resultPlayer1Name"></strong>
+                            <p>Tiro: <span id="resultPlayer1Shoot"></span></p>
+                            <p>Parada: <span id="resultPlayer1Save"></span></p>
+                            <p class="points">Puntos: <span id="resultPlayer1Points"></span></p>
+                        </div>
+                        <div class="result-item">
+                            <strong id="resultPlayer2Name"></strong>
+                            <p>Tiro: <span id="resultPlayer2Shoot"></span></p>
+                            <p>Parada: <span id="resultPlayer2Save"></span></p>
+                            <p class="points">Puntos: <span id="resultPlayer2Points"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- ACCIONES DEL RESULTADO -->
+                    <div class="result-actions">
+                        <button id="replayAnimationBtn" class="btn btn-secondary">Repetir animación</button>
+                        <button id="continueRoundBtn" class="btn btn-primary">Continuar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 7. PANTALLA FINAL ==================== -->
+        <div id="endScreen" class="screen">
+            <div class="end-content">
+                <!-- TEXTO DEL GANADOR -->
+                <h2 id="winnerText"></h2>
+
+                <!-- PUNTUACIÓN FINAL -->
+                <div class="final-scores">
+                    <div class="final-score-item">
+                        <span id="finalPlayer1Name"></span>
+                        <span id="finalPlayer1Score"></span>
+                    </div>
+                    <div class="final-score-item">
+                        <span id="finalPlayer2Name"></span>
+                        <span id="finalPlayer2Score"></span>
+                    </div>
+                </div>
+
+                <!-- MODAL DE ESTADÍSTICAS FINALES -->
+                <div id="statsModal" class="modal hidden">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4>📊 Estadísticas finales</h4>
+                            <button id="closeStatsModalBtn" class="close-modal-btn" aria-label="Cerrar">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="stats-grid-modal">
+                                <!-- ESTADÍSTICAS JUGADOR 1 -->
+                                <div class="stat-block-modal">
+                                    <strong id="statP1NameModal">Jugador 1</strong>
+                                        <div class="stat-row">
+                                            <span class="stat-label">Aciertos totales</span>
+                                            <span class="stat-value success"><span id="statP1FullModal">0</span></span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span class="stat-label">Aciertos parciales</span>
+                                            <span class="stat-value warning"><span id="statP1PartialModal">0</span></span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span class="stat-label">Fallos</span>
+                                            <span class="stat-value danger"><span id="statP1MissModal">0</span></span>
+                                        </div>
+                                        <div class="stat-row accent">
+                                            <span class="stat-label">Porcentaje de acierto</span>
+                                            <span class="stat-value-large"><span id="statP1PctModal">0%</span></span>
+                                        </div>
+                                </div>
+
+                                <!-- ESTADÍSTICAS JUGADOR 2 -->
+                                <div class="stat-block-modal">
+                                    <strong id="statP2NameModal">Jugador 2</strong>
+                                        <div class="stat-row">
+                                            <span class="stat-label">Aciertos totales</span>
+                                            <span class="stat-value success"><span id="statP2FullModal">0</span></span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span class="stat-label">Aciertos parciales</span>
+                                            <span class="stat-value warning"><span id="statP2PartialModal">0</span></span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span class="stat-label">Fallos</span>
+                                            <span class="stat-value danger"><span id="statP2MissModal">0</span></span>
+                                        </div>
+                                        <div class="stat-row accent">
+                                            <span class="stat-label">Porcentaje de acierto</span>
+                                            <span class="stat-value-large"><span id="statP2PctModal">0%</span></span>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="closeStatsBtn" class="btn btn-primary">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTONES DE ACCIÓN -->
+                <div class="end-actions">
+                    <button id="tiebreakerBtn" class="btn btn-primary hidden">Desempatar</button>
+                    <button id="viewStatsBtn" class="btn btn-secondary hidden">Ver estadísticas</button>
+                    <button id="playAgainBtn" class="btn btn-primary">Buscar partida</button>
+                    <button id="exitGameBtn" class="btn btn-secondary">Salir</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 8. NOTIFICACIONES ==================== -->
+        <div id="notification" class="notification hidden" role="alert" aria-live="polite"></div>
+
+        <!-- ==================== 9. FOOTER ==================== -->
+        <footer>
+            <p>&copy; Penalty Arena 2025 by Juan Martín & Sergio Reyes</p>
+        </footer>
+    </div>
+
+    <!-- ==================== 10. SCRIPTS ==================== -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
