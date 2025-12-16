@@ -103,10 +103,7 @@ playAgainBtn.addEventListener("click", () => {
     exitedManually = false;
     
     // Resetear marcadores en el DOM
-    const p1ScoreEl = document.getElementById("player1Score");
-    const p2ScoreEl = document.getElementById("player2Score");
-    if (p1ScoreEl) p1ScoreEl.textContent = "0";
-    if (p2ScoreEl) p2ScoreEl.textContent = "0";
+    resetScoreDisplays(currentRound);
     
     // Ocultar resultados de ronda
     if (roundResult) roundResult.classList.add("hidden");
@@ -144,17 +141,21 @@ playAgainBtn.addEventListener("click", () => {
     if (finalStatsEl) finalStatsEl.classList.add('hidden');
     if (viewStatsBtnEl) viewStatsBtnEl.classList.add('hidden');
     
-    // Desconectar y reconectar el socket para buscar nueva partida
-    try {
-        socket.disconnect();
-    } catch (e) {}
-    socket.connect();
-    
     // Buscar nueva partida con el mismo nombre
+    // No es necesario desconectar/reconectar si el socket ya está conectado
     if (playerName && playerName.trim()) {
         showNotification("Buscando nueva partida...", "info");
-        socket.emit('findMatch', playerName);
         showScreen('waitingScreen');
+        
+        // Si el socket no está conectado, esperar a que se conecte antes de buscar partida
+        if (!socket.connected) {
+            socket.connect();
+            socket.once('connect', () => {
+                socket.emit('findMatch', playerName);
+            });
+        } else {
+            socket.emit('findMatch', playerName);
+        }
     } else {
         // Si no hay nombre guardado, volver a la pantalla inicial
         resetGame();
@@ -321,6 +322,26 @@ function updateLocalIconDisplay() {
     }
 }
 
+function resetScoreDisplays(roundValue = 1) {
+    const p1ScoreEl = document.getElementById("player1Score");
+    const p2ScoreEl = document.getElementById("player2Score");
+    const totalPlayer1ScoreEl = document.getElementById("totalPlayer1Score");
+    const totalPlayer2ScoreEl = document.getElementById("totalPlayer2Score");
+    const finalPlayer1ScoreEl = document.getElementById("finalPlayer1Score");
+    const finalPlayer2ScoreEl = document.getElementById("finalPlayer2Score");
+    const currentRoundEl = document.getElementById("currentRound");
+    const maxRoundsEl = document.getElementById("maxRounds");
+
+    if (p1ScoreEl) p1ScoreEl.textContent = "0";
+    if (p2ScoreEl) p2ScoreEl.textContent = "0";
+    if (totalPlayer1ScoreEl) totalPlayer1ScoreEl.textContent = "0";
+    if (totalPlayer2ScoreEl) totalPlayer2ScoreEl.textContent = "0";
+    if (finalPlayer1ScoreEl) finalPlayer1ScoreEl.textContent = "0";
+    if (finalPlayer2ScoreEl) finalPlayer2ScoreEl.textContent = "0";
+    if (currentRoundEl) currentRoundEl.textContent = String(roundValue);
+    if (maxRoundsEl && maxRounds) maxRoundsEl.textContent = String(maxRounds);
+}
+
 function clearGoalSelections() {
     selectedShootZone = null;
     selectedSaveZone = null;
@@ -363,10 +384,7 @@ function findMatch() {
     currentRound = 1;
     
     // Resetear marcadores en el DOM
-    const p1ScoreEl = document.getElementById("player1Score");
-    const p2ScoreEl = document.getElementById("player2Score");
-    if (p1ScoreEl) p1ScoreEl.textContent = "0";
-    if (p2ScoreEl) p2ScoreEl.textContent = "0";
+    resetScoreDisplays(currentRound);
     
     // Ocultar resultados de ronda
     if (roundResult) roundResult.classList.add("hidden");
@@ -1033,11 +1051,17 @@ socket.on("waitingForMatch", () => {
 
 socket.on('rematchNotAvailable', (data) => {
     showNotification(data.message || 'Partida no encontrada. Buscando oponente...', 'info');
-    try { socket.disconnect(); } catch (e) {}
-    socket.connect();
     if (playerName && playerName.trim()) {
-        socket.emit('findMatch', playerName);
         showScreen('waitingScreen');
+        // Si el socket no está conectado, esperar a que se conecte antes de buscar partida
+        if (!socket.connected) {
+            socket.connect();
+            socket.once('connect', () => {
+                socket.emit('findMatch', playerName);
+            });
+        } else {
+            socket.emit('findMatch', playerName);
+        }
     } else {
         resetGame();
     }
@@ -1081,10 +1105,7 @@ socket.on("matchFound", (data) => {
     currentRound = 1;
     
     // Resetear marcadores en el DOM
-    const p1ScoreEl = document.getElementById("player1Score");
-    const p2ScoreEl = document.getElementById("player2Score");
-    if (p1ScoreEl) p1ScoreEl.textContent = "0";
-    if (p2ScoreEl) p2ScoreEl.textContent = "0";
+    resetScoreDisplays(currentRound);
     
     // Limpiar estado de animaciones y resultados
     if (roundResult) roundResult.classList.add("hidden");
@@ -1145,8 +1166,16 @@ socket.on("gameStart", (data) => {
     maxRounds = data.maxRounds;
     currentRound = 1;
     if (data.gameId) currentGameId = data.gameId;
-    document.getElementById("currentRound").textContent = currentRound;
-    document.getElementById("maxRounds").textContent = maxRounds;
+    
+    // Asegurar que estamos en la pantalla de juego antes de modificar elementos
+    if (!gameScreen || !gameScreen.classList.contains('active')) {
+        showScreen("gameScreen");
+    }
+    
+    const currentRoundEl = document.getElementById("currentRound");
+    const maxRoundsEl = document.getElementById("maxRounds");
+    if (currentRoundEl) currentRoundEl.textContent = currentRound;
+    if (maxRoundsEl) maxRoundsEl.textContent = maxRounds;
 
     serverPlayer1Name = data.player1;
     serverPlayer2Name = data.player2;
@@ -1158,8 +1187,7 @@ socket.on("gameStart", (data) => {
 
     updateLocalIconDisplay();
 
-    document.getElementById("player1Score").textContent = "0";
-    document.getElementById("player2Score").textContent = "0";
+    resetScoreDisplays(currentRound);
 
     const gameContent = document.querySelector(".game-content");
     if (gameContent) {
@@ -1412,15 +1440,27 @@ socket.on("gameEnd", (data) => {
         return;
     }
 
-    const uiFinalP1Score = parseInt(document.getElementById("player1Score").textContent || "0");
-    const uiFinalP2Score = parseInt(document.getElementById("player2Score").textContent || "0");
+    // Asegurar que estamos en la pantalla final antes de modificar elementos
+    if (!endScreen || !endScreen.classList.contains('active')) {
+        showScreen("endScreen");
+    }
+
+    const p1ScoreEl = document.getElementById("player1Score");
+    const p2ScoreEl = document.getElementById("player2Score");
+    const uiFinalP1Score = parseInt(p1ScoreEl ? (p1ScoreEl.textContent || "0") : "0");
+    const uiFinalP2Score = parseInt(p2ScoreEl ? (p2ScoreEl.textContent || "0") : "0");
     const uiFinalP1Name = (document.querySelector('#player1Name .player-name-text') || {textContent: 'Player 1'}).textContent || "Player 1";
     const uiFinalP2Name = (document.querySelector('#player2Name .player-name-text') || {textContent: 'Player 2'}).textContent || "Player 2";
     
-    document.getElementById("finalPlayer1Name").innerHTML = formatNameWithIcon(uiFinalP1Name, !!isPlayer1);
-    document.getElementById("finalPlayer1Score").textContent = String(uiFinalP1Score);
-    document.getElementById("finalPlayer2Name").innerHTML = formatNameWithIcon(uiFinalP2Name, !isPlayer1);
-    document.getElementById("finalPlayer2Score").textContent = String(uiFinalP2Score);
+    const finalPlayer1NameEl = document.getElementById("finalPlayer1Name");
+    const finalPlayer1ScoreEl = document.getElementById("finalPlayer1Score");
+    const finalPlayer2NameEl = document.getElementById("finalPlayer2Name");
+    const finalPlayer2ScoreEl = document.getElementById("finalPlayer2Score");
+    
+    if (finalPlayer1NameEl) finalPlayer1NameEl.innerHTML = formatNameWithIcon(uiFinalP1Name, !!isPlayer1);
+    if (finalPlayer1ScoreEl) finalPlayer1ScoreEl.textContent = String(uiFinalP1Score);
+    if (finalPlayer2NameEl) finalPlayer2NameEl.innerHTML = formatNameWithIcon(uiFinalP2Name, !isPlayer1);
+    if (finalPlayer2ScoreEl) finalPlayer2ScoreEl.textContent = String(uiFinalP2Score);
 
     const winnerTextEl = document.getElementById("winnerText");
     const tiebreakerBtnEl = document.getElementById("tiebreakerBtn");
@@ -1428,6 +1468,11 @@ socket.on("gameEnd", (data) => {
     const exitGameBtnEl = document.getElementById("exitGameBtn");
     const finalStatsEl = document.getElementById('finalStats');
     const viewStatsBtnEl = document.getElementById('viewStatsBtn');
+
+    if (!winnerTextEl || !tiebreakerBtnEl || !playAgainBtnEl || !exitGameBtnEl) {
+        console.error("Elementos de la pantalla final no encontrados");
+        return;
+    }
 
     const uiWinner = uiFinalP1Score > uiFinalP2Score ? 'player1' : uiFinalP2Score > uiFinalP1Score ? 'player2' : null;
     if (uiWinner === null) {
@@ -1462,8 +1507,6 @@ socket.on("gameEnd", (data) => {
     tiebreakerBtnEl.disabled = false;
     exitGameBtnEl.disabled = false;
     exitGameBtnEl.style.display = "block";
-
-    showScreen("endScreen");
 });
 
 socket.on("tiebreakerRound", (data) => {
@@ -1605,20 +1648,35 @@ function continueToNextRound() {
         pendingGameEndData = null;
         awaitingFinalScreen = false;
 
-        const uiFinalP1Score = parseInt(document.getElementById("player1Score").textContent || "0");
-        const uiFinalP2Score = parseInt(document.getElementById("player2Score").textContent || "0");
+        const p1ScoreEl = document.getElementById("player1Score");
+        const p2ScoreEl = document.getElementById("player2Score");
+        const uiFinalP1Score = parseInt(p1ScoreEl ? (p1ScoreEl.textContent || "0") : "0");
+        const uiFinalP2Score = parseInt(p2ScoreEl ? (p2ScoreEl.textContent || "0") : "0");
         const uiFinalP1Name = (document.querySelector('#player1Name .player-name-text') || {textContent: 'Player 1'}).textContent || "Player 1";
         const uiFinalP2Name = (document.querySelector('#player2Name .player-name-text') || {textContent: 'Player 2'}).textContent || "Player 2";
         
-        document.getElementById("finalPlayer1Name").innerHTML = formatNameWithIcon(uiFinalP1Name, !!isPlayer1);
-        document.getElementById("finalPlayer1Score").textContent = String(uiFinalP1Score);
-        document.getElementById("finalPlayer2Name").innerHTML = formatNameWithIcon(uiFinalP2Name, !isPlayer1);
-        document.getElementById("finalPlayer2Score").textContent = String(uiFinalP2Score);
+        const finalPlayer1NameEl = document.getElementById("finalPlayer1Name");
+        const finalPlayer1ScoreEl = document.getElementById("finalPlayer1Score");
+        const finalPlayer2NameEl = document.getElementById("finalPlayer2Name");
+        const finalPlayer2ScoreEl = document.getElementById("finalPlayer2Score");
+        
+        if (finalPlayer1NameEl) finalPlayer1NameEl.innerHTML = formatNameWithIcon(uiFinalP1Name, !!isPlayer1);
+        if (finalPlayer1ScoreEl) finalPlayer1ScoreEl.textContent = String(uiFinalP1Score);
+        if (finalPlayer2NameEl) finalPlayer2NameEl.innerHTML = formatNameWithIcon(uiFinalP2Name, !isPlayer1);
+        if (finalPlayer2ScoreEl) finalPlayer2ScoreEl.textContent = String(uiFinalP2Score);
 
+        // Asegurar que estamos en la pantalla final antes de modificar elementos
+        showScreen('endScreen');
+        
         const winnerTextEl = document.getElementById("winnerText");
         const tiebreakerBtnEl = document.getElementById('tiebreakerBtn');
         const finalStatsEl = document.getElementById('finalStats');
         const viewStatsBtnEl = document.getElementById('viewStatsBtn');
+        
+        if (!winnerTextEl) {
+            console.error("Elemento winnerText no encontrado");
+            return;
+        }
         
         const uiWinner = uiFinalP1Score > uiFinalP2Score ? 'player1' : uiFinalP2Score > uiFinalP1Score ? 'player2' : null;
         if (uiWinner === null) {
@@ -1647,13 +1705,12 @@ function continueToNextRound() {
                 if (viewStatsBtnEl) viewStatsBtnEl.classList.add('hidden');
             }
         }
-
-        showScreen('endScreen');
         return;
     }
 
     currentRound++;
-    document.getElementById("currentRound").textContent = currentRound;
+    const currentRoundEl = document.getElementById("currentRound");
+    if (currentRoundEl) currentRoundEl.textContent = currentRound;
 
     if (roundResult) roundResult.classList.add("hidden");
     if (gameScreen) gameScreen.classList.remove('showing-results');
@@ -1721,18 +1778,27 @@ function renderFinalStats() {
     const p1 = statsUI.player1;
     const p2 = statsUI.player2;
     
-    document.getElementById('statP1FullModal').textContent = String(p1.full);
-    document.getElementById('statP1PartialModal').textContent = String(p1.partial);
-    document.getElementById('statP1MissModal').textContent = String(p1.miss);
-    document.getElementById('statP2FullModal').textContent = String(p2.full);
-    document.getElementById('statP2PartialModal').textContent = String(p2.partial);
-    document.getElementById('statP2MissModal').textContent = String(p2.miss);
+    const statP1FullEl = document.getElementById('statP1FullModal');
+    const statP1PartialEl = document.getElementById('statP1PartialModal');
+    const statP1MissEl = document.getElementById('statP1MissModal');
+    const statP2FullEl = document.getElementById('statP2FullModal');
+    const statP2PartialEl = document.getElementById('statP2PartialModal');
+    const statP2MissEl = document.getElementById('statP2MissModal');
+    
+    if (statP1FullEl) statP1FullEl.textContent = String(p1.full);
+    if (statP1PartialEl) statP1PartialEl.textContent = String(p1.partial);
+    if (statP1MissEl) statP1MissEl.textContent = String(p1.miss);
+    if (statP2FullEl) statP2FullEl.textContent = String(p2.full);
+    if (statP2PartialEl) statP2PartialEl.textContent = String(p2.partial);
+    if (statP2MissEl) statP2MissEl.textContent = String(p2.miss);
 
     const pct1 = p1.attempts > 0 ? Math.round(((p1.full + p1.partial) / p1.attempts) * 100) : 0;
     const pct2 = p2.attempts > 0 ? Math.round(((p2.full + p2.partial) / p2.attempts) * 100) : 0;
     
-    document.getElementById('statP1PctModal').textContent = pct1 + '%';
-    document.getElementById('statP2PctModal').textContent = pct2 + '%';
+    const statP1PctEl = document.getElementById('statP1PctModal');
+    const statP2PctEl = document.getElementById('statP2PctModal');
+    if (statP1PctEl) statP1PctEl.textContent = pct1 + '%';
+    if (statP2PctEl) statP2PctEl.textContent = pct2 + '%';
 
     if (viewStatsBtn) {
         viewStatsBtn.classList.remove('hidden');

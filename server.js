@@ -76,6 +76,23 @@ io.on('connection', (socket) => {
             const [waitingSocketId, waitingPlayer] = Array.from(waitingPlayers.entries())[0];
             const waitingSocket = waitingPlayer.socket;
 
+            // Verificar que ambos sockets estén conectados antes de crear la partida
+            const waitingSocketStillConnected = io.sockets.sockets.has(waitingSocketId);
+            const currentSocketConnected = io.sockets.sockets.has(socket.id);
+
+            if (!waitingSocketStillConnected || !currentSocketConnected) {
+                // Si alguno de los sockets se desconectó, limpiar y añadir el nuevo jugador a la lista de espera
+                if (!waitingSocketStillConnected) {
+                    waitingPlayers.delete(waitingSocketId);
+                    console.log(`Socket ${waitingSocketId} ya no está conectado, eliminado de la lista de espera`);
+                }
+                // Añadir el nuevo jugador a la lista de espera
+                waitingPlayers.set(socket.id, { socket, playerName });
+                socket.emit('waitingForMatch');
+                console.log(`Jugador ${playerName} esperando partida...`);
+                return;
+            }
+
             // Crear partida
             const gameId = createGameId();
             const game = {
