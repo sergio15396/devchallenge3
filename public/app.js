@@ -173,8 +173,6 @@ exitGameBtn.addEventListener("click", () => {
     showScreen("startScreen");
     playerNameInput.value = "";
     playerNameInput.focus();
-    socket.disconnect();
-    socket.connect();
     setTimeout(() => {
         setupGoalInteractivity(shootGoal, "shoot");
         setupGoalInteractivity(saveGoal, "save");
@@ -184,6 +182,12 @@ exitGameBtn.addEventListener("click", () => {
 tiebreakerBtn.addEventListener("click", () => {
     if (!currentGameId) {
         showNotification("No se encontró la partida. No se puede desempatar.", "error");
+        return;
+    }
+    
+    if (!socket.connected) {
+        showNotification("No hay conexión con el servidor. Intentando reconectar...", "error");
+        socket.connect();
         return;
     }
     
@@ -414,20 +418,34 @@ function findMatch() {
 
     playerName = name;
     showScreen("waitingScreen");
-    socket.emit("findMatch", playerName);
+    
+    // Verificar conexión antes de emitir
+    if (!socket.connected) {
+        socket.connect();
+        socket.once('connect', () => {
+            socket.emit("findMatch", playerName);
+        });
+    } else {
+        socket.emit("findMatch", playerName);
+    }
+    
     playerNameInput.value = "";
     try { playerNameInput.blur(); } catch (e) {}
 }
 
 function cancelSearch() {
-    socket.disconnect();
-    socket.connect();
     showScreen("startScreen");
 }
 
 function submitMove() {
     if (!selectedShootZone || !selectedSaveZone) {
         showNotification("Selecciona las zonas de la portería", "error");
+        return;
+    }
+
+    if (!socket.connected) {
+        showNotification("No hay conexión con el servidor. Intentando reconectar...", "error");
+        socket.connect();
         return;
     }
 
@@ -463,9 +481,6 @@ function resetGame() {
     const p2Icon = document.querySelector('#player2Name .user-icon');
     if (p1Icon) p1Icon.classList.add('hidden');
     if (p2Icon) p2Icon.classList.add('hidden');
-
-    socket.disconnect();
-    socket.connect();
 
     setTimeout(() => {
         setupGoalInteractivity(shootGoal, "shoot");
@@ -1090,6 +1105,20 @@ socket.on('tiebreakerNotAvailable', (data) => {
 });
 
 socket.on("matchFound", (data) => {
+    // Verificar que el socket sigue conectado antes de procesar el match
+    if (!socket.connected) {
+        console.warn('Match encontrado pero socket desconectado. Intentando reconectar...');
+        socket.connect();
+        // Esperar a que se reconecte antes de continuar
+        socket.once('connect', () => {
+            // Re-emitir findMatch para buscar nueva partida
+            if (playerName && playerName.trim()) {
+                socket.emit('findMatch', playerName);
+            }
+        });
+        return;
+    }
+    
     currentGameId = data.gameId;
     isPlayer1 = data.isPlayer1;
     
@@ -1637,6 +1666,30 @@ socket.on("opponentDisconnected", () => {
         setTimeout(() => {
             resetGame();
         }, 30000);
+    }
+});
+
+// Manejo de desconexión del socket
+socket.on('disconnect', (reason) => {
+    console.log('Socket desconectado:', reason);
+    if (currentGameId && !exitedManually) {
+        showNotification("Conexión perdida. Intentando reconectar...", "error");
+    }
+});
+
+// Manejo de reconexión del socket
+socket.on('connect', () => {
+    console.log('Socket conectado');
+    if (currentGameId && !exitedManually) {
+        showNotification("Conexión restablecida", "success");
+    }
+});
+
+// Manejo de errores de conexión
+socket.on('connect_error', (error) => {
+    console.error('Error de conexión:', error);
+    if (currentGameId && !exitedManually) {
+        showNotification("Error de conexión. Reintentando...", "error");
     }
 });
 
