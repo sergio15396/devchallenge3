@@ -901,10 +901,13 @@ function getZoneAnimationClass(zoneNum) {
 
 // Función helper para obtener el scale correcto según el tamaño de pantalla
 function getPorterScale() {
+    // Retorna el scale según el ancho de la ventana
+    // Móvil: <= 480px → 0.12
+    // Desktop: > 480px → 0.22
     if (window.innerWidth <= 480) {
-        return 0.12; // Scale para móvil (reducido 70% adicional desde 0.39)
+        return 0.12;
     }
-    return 0.22; // Scale para desktop
+    return 0.22;
 }
 
 function getPorterPosition(zoneNum, shrink = 1) {
