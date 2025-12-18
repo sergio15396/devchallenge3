@@ -71,10 +71,27 @@ io.on('connection', (socket) => {
 
     /* ==================== 4.1 BÚSQUEDA DE PARTIDA ==================== */
     socket.on('findMatch', (playerName) => {
+        // Eliminar el socket actual de waitingPlayers si ya está ahí (evitar duplicados)
+        if (waitingPlayers.has(socket.id)) {
+            waitingPlayers.delete(socket.id);
+            console.log(`Socket ${socket.id} ya estaba en la lista de espera, eliminado antes de añadirlo de nuevo`);
+        }
+
         if (waitingPlayers.size > 0) {
             // Hay un jugador esperando: crear partida inmediatamente
             const [waitingSocketId, waitingPlayer] = Array.from(waitingPlayers.entries())[0];
             const waitingSocket = waitingPlayer.socket;
+
+            // Verificar que no se empareje consigo mismo
+            if (waitingSocketId === socket.id) {
+                console.log(`Intento de emparejarse consigo mismo detectado. Socket ${socket.id} ya está en la lista de espera.`);
+                // Eliminar de la lista y añadir de nuevo
+                waitingPlayers.delete(waitingSocketId);
+                waitingPlayers.set(socket.id, { socket, playerName });
+                socket.emit('waitingForMatch');
+                console.log(`Jugador ${playerName} esperando partida...`);
+                return;
+            }
 
             // Verificar que ambos sockets estén conectados antes de crear la partida
             const waitingSocketStillConnected = io.sockets.sockets.has(waitingSocketId);
@@ -130,6 +147,15 @@ io.on('connection', (socket) => {
             waitingPlayers.set(socket.id, { socket, playerName });
             socket.emit('waitingForMatch');
             console.log(`Jugador ${playerName} esperando partida...`);
+        }
+    });
+
+    /* ==================== 4.1.1 CANCELAR BÚSQUEDA ==================== */
+    socket.on('cancelSearch', () => {
+        // Eliminar de la lista de espera si está ahí
+        if (waitingPlayers.has(socket.id)) {
+            waitingPlayers.delete(socket.id);
+            console.log(`Jugador ${socket.id} canceló la búsqueda, eliminado de la lista de espera`);
         }
     });
 

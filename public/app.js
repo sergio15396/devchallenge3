@@ -434,6 +434,14 @@ function findMatch() {
 }
 
 function cancelSearch() {
+    // Limpiar el nombre guardado
+    playerName = "";
+    
+    // Notificar al servidor que se cancela la búsqueda para eliminarlo de waitingPlayers
+    if (socket.connected) {
+        socket.emit("cancelSearch");
+    }
+    
     showScreen("startScreen");
 }
 
