@@ -60,5 +60,9 @@ devchallenge3heh/
 ## 📝 Notas
 
 - El servidor gestiona automáticamente las partidas y la sincronización entre jugadores
-- Las partidas se limpian automáticamente 30 segundos después de finalizar
+- **Gestión de timeouts:**
+  - Si hay ganador: Las partidas se limpian automáticamente **30 segundos** después de finalizar
+  - Si hay empate: Las partidas se limpian automáticamente **2 minutos** después de finalizar (para dar tiempo a desempatar)
+  - Si se solicita desempate, el timeout de eliminación se cancela automáticamente
+  - Si solo un jugador solicita desempate, hay un timeout de **2 minutos** para que el otro jugador acepte
 - Si un jugador se desconecta, el otro jugador será notificado

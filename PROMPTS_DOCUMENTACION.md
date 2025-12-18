@@ -278,12 +278,20 @@ Sistema de desempate opcional con sincronización:
 - Timeouts se cancelan cuando se detecta desempate
 - UI se actualiza automáticamente en ambos clientes
 
+**Sistema de Timeouts Inteligente:**
+- **Si hay ganador:** La partida se elimina automáticamente después de **30 segundos** de finalizar
+- **Si hay empate:** La partida se elimina automáticamente después de **2 minutos** de finalizar (para dar tiempo suficiente a desempatar)
+- **Al solicitar desempate:** El timeout de eliminación se cancela automáticamente (incluso si solo un jugador lo solicita)
+- **Timeout de desempate:** Si solo un jugador solicita desempate, hay un timeout de **2 minutos** para que el otro jugador acepte. Si no acepta, se cancela la solicitud y se programa la eliminación de la partida
+
 ### Problemas Técnicos Resueltos:
 - ✅ Manejo dinámico de rondas extra
 - ✅ Sincronización de solicitudes entre jugadores
 - ✅ Prevención de duplicados
-- ✅ Cancelación de timeouts pendientes
+- ✅ Cancelación inteligente de timeouts pendientes
 - ✅ UI consistente en ambos clientes
+- ✅ Gestión de timeouts diferenciada según resultado (ganador vs. empate)
+- ✅ Protección contra eliminación prematura cuando se solicita desempate
 
 ### Por Qué Esta Aproximación:
 Se eligió el sistema optional (en lugar de automático) porque:
@@ -512,7 +520,7 @@ Esta implementación transforma el juego de ser exclusivamente dependiente del m
 
 ## Nota Final: Prompts secundarios y su rol en la solución
 
-Durante el desarrollo, además de los ocho prompts principales documentados arriba, emergieron numerosos prompts secundarios. Estos no eran simples "ajustes estéticos": en muchos casos fueron preguntas puntuales, comprobaciones, depuraciones y micro-decisiones que permitieron que las soluciones principales funcionaran de forma robusta en escenarios reales.
+Durante el desarrollo, además de los nueve prompts principales documentados arriba, emergieron numerosos prompts secundarios. Estos no eran simples "ajustes estéticos": en muchos casos fueron preguntas puntuales, comprobaciones, depuraciones y micro-decisiones que permitieron que las soluciones principales funcionaran de forma robusta en escenarios reales.
 
 A continuación se desarrolla en profundidad cómo surgieron esos prompts secundarios, qué tipos de problemas resolvían, ejemplos concretos asociados a cada prompt principal y buenas prácticas aprendidas.
 
@@ -643,9 +651,13 @@ Los prompts secundarios complementan a los prompts principales y transforman una
 **Problema:** ¿Qué si servidor y cliente desincronizados?
 **Solución:** Servidor es fuente de verdad (calcula puntuaciones, no cliente)
 
-### 3. Timeouts Huérfanos
-**Problema:** ¿Qué si se busca nueva partida pero hay timeout de fin pendiente?
-**Solución:** Cancelar TODOS los timeouts antes de buscar nueva partida
+### 3. Timeouts Huérfanos y Gestión Inteligente
+**Problema:** ¿Qué si se busca nueva partida pero hay timeout de fin pendiente? ¿Qué pasa si un jugador tarda en desempatar?
+**Solución:** 
+- Cancelar TODOS los timeouts antes de buscar nueva partida
+- Sistema de timeouts diferenciado: **30 segundos** si hay ganador, **2 minutos** si hay empate (para dar tiempo a desempatar)
+- Cancelación automática del timeout de eliminación cuando se solicita desempate
+- Timeout de **2 minutos** para aceptación de desempate si solo un jugador lo solicita
 
 ### 4. Pérdida de Conexión
 **Problema:** ¿Qué si un jugador se desconecta a mitad de partida?

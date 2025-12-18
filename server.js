@@ -230,6 +230,12 @@ io.on('connection', (socket) => {
                         if (g.tiebreakerRequests && g.tiebreakerRequests.size > 0) {
                             return; // No eliminar si hay solicitudes de desempate
                         }
+                        
+                        // Notificar a los jugadores que la partida ha sido eliminada por timeout
+                        io.to(gameId).emit('gameDeleted', { 
+                            message: 'La partida ha expirado. Volviendo a la pantalla principal...' 
+                        });
+                        
                         games.delete(gameId);
                         console.log(`Game ${gameId} deleted after timeout`);
                     }, deleteTimeout);
@@ -357,6 +363,11 @@ io.on('connection', (socket) => {
                         g.player2.score > g.player1.score ? g.player2.name : null;
                     const deleteTimeout = winner === null ? 30000 : 30000; // 30 segundos adicionales
                     g.deleteTimeoutId = setTimeout(() => {
+                        // Notificar a los jugadores que la partida ha sido eliminada por timeout
+                        io.to(gameId).emit('gameDeleted', { 
+                            message: 'La partida ha expirado. Volviendo a la pantalla principal...' 
+                        });
+                        
                         games.delete(gameId);
                         console.log(`Game ${gameId} deleted after tiebreaker timeout`);
                     }, deleteTimeout);

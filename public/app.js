@@ -423,7 +423,7 @@ function findMatch() {
     if (!socket.connected) {
         socket.connect();
         socket.once('connect', () => {
-            socket.emit("findMatch", playerName);
+    socket.emit("findMatch", playerName);
         });
     } else {
         socket.emit("findMatch", playerName);
@@ -1669,6 +1669,30 @@ socket.on("opponentDisconnected", () => {
     }
 });
 
+socket.on("gameDeleted", (data) => {
+    showNotification(data.message || "La partida ha expirado. Volviendo a la pantalla principal...", "error");
+    
+    // Limpiar estado
+    currentGameId = null;
+    currentRound = 1;
+    exitedManually = false;
+    
+    // Limpiar resultados y estadísticas
+    statsUI = {
+        player1: { full: 0, partial: 0, miss: 0, attempts: 0 },
+        player2: { full: 0, partial: 0, miss: 0, attempts: 0 }
+    };
+    
+    currentAnimationData = null;
+    pendingGameEndData = null;
+    awaitingFinalScreen = false;
+    
+    // Volver a la pantalla principal después de mostrar el mensaje
+    setTimeout(() => {
+        resetGame();
+    }, 2000); // Esperar 2 segundos para que el usuario vea el mensaje
+});
+
 // Manejo de desconexión del socket
 socket.on('disconnect', (reason) => {
     console.log('Socket desconectado:', reason);
@@ -1720,7 +1744,7 @@ function continueToNextRound() {
 
         // Asegurar que estamos en la pantalla final antes de modificar elementos
         showScreen('endScreen');
-        
+
         const winnerTextEl = document.getElementById("winnerText");
         const tiebreakerBtnEl = document.getElementById('tiebreakerBtn');
         const finalStatsEl = document.getElementById('finalStats');
