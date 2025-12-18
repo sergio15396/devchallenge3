@@ -280,6 +280,7 @@ Sistema de desempate opcional con sincronización:
 
 **Sistema de Timeouts Inteligente:**
 - **Si hay ganador:** La partida se elimina automáticamente después de **30 segundos** de finalizar
+  - ⚠️ **NOTA IMPORTANTE:** Este timeout de 30 segundos es **temporal** y se implementó únicamente para agilizar la presentación del proyecto en clase. En producción, se recomienda volver a **2 minutos** o incluso subirlo a **5 minutos** para dar más tiempo a los jugadores a revisar resultados, estadísticas y decidir si quieren buscar una nueva partida.
 - **Si hay empate:** La partida se elimina automáticamente después de **2 minutos** de finalizar (para dar tiempo suficiente a desempatar)
 - **Al solicitar desempate:** El timeout de eliminación se cancela automáticamente (incluso si solo un jugador lo solicita)
 - **Timeout de desempate:** Si solo un jugador solicita desempate, hay un timeout de **2 minutos** para que el otro jugador acepte. Si no acepta, se cancela la solicitud y se programa la eliminación de la partida
@@ -656,6 +657,7 @@ Los prompts secundarios complementan a los prompts principales y transforman una
 **Solución:** 
 - Cancelar TODOS los timeouts antes de buscar nueva partida
 - Sistema de timeouts diferenciado: **30 segundos** si hay ganador, **2 minutos** si hay empate (para dar tiempo a desempatar)
+  - ⚠️ **NOTA IMPORTANTE:** El timeout de 30 segundos para partidas con ganador es **temporal** y se implementó únicamente para agilizar la presentación del proyecto en clase. En producción, se recomienda volver a **2 minutos** o incluso subirlo a **5 minutos** para dar más tiempo a los jugadores a revisar resultados, estadísticas y decidir si quieren buscar una nueva partida.
 - Cancelación automática del timeout de eliminación cuando se solicita desempate
 - Timeout de **2 minutos** para aceptación de desempate si solo un jugador lo solicita
 

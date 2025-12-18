@@ -170,6 +170,7 @@ body.startScreen-active header h1 {
     background: transparent;
     box-shadow: none;
     z-index: 10;
+    padding: 20px;
 }
 
 #startScreen.active {
@@ -1549,5 +1550,654 @@ body:not(.startScreen-active) footer {
 footer p {
     margin: 0;
     letter-spacing: 0.5px;
+}
+
+/* ==================== RESPONSIVE - MÓVILES (< 480px) ==================== */
+@media screen and (max-width: 480px) {
+    /* Body y contenedor principal */
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        max-width: 100%;
+        padding: 0;
+    }
+
+    /* Header */
+    header {
+        padding: 10px 0 !important;
+        margin-bottom: 15px;
+    }
+
+    header h1 {
+        font-size: 3.5rem;
+        letter-spacing: 2px !important;
+        word-spacing: 3px;
+    }
+
+    .subtitle {
+        font-size: 0.9rem;
+    }
+
+    /* Pantallas */
+    .screen {
+        padding: 15px;
+    }
+
+    #startScreen {
+        padding: 10px;
+    }
+
+    #endScreen.active {
+        padding: 10px;
+        height: calc(100vh - 20px);
+    }
+
+    /* Pantalla de inicio */
+    #startScreen {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    .start-content {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+        width: 100%;
+        max-width: 100%;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #playerName {
+        flex: 1 1 100%;
+        width: 100%;
+        max-width: 100%;
+        padding: 12px;
+        font-size: 1.2rem;
+        text-align: center;
+        margin-top: 200px;
+    }
+
+    #playerName::placeholder {
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+
+    #findMatchBtn {
+        width: 100%;
+        padding: 14px;
+        font-size: 1.1rem;
+    }
+
+    /* Pantalla de espera */
+    .waiting-content {
+        padding: 25px 20px;
+    }
+
+    .waiting-content p {
+        font-size: 1rem;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border-width: 3px;
+    }
+
+    /* Scoreboard */
+    .scoreboard {
+        padding: 15px 10px;
+        margin-bottom: 10px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .player-score {
+        flex: 1;
+        min-width: 0;
+        width: auto;
+    }
+
+    .player-name {
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+    }
+
+    .score {
+        font-size: 1.5rem;
+    }
+
+    .vs {
+        font-size: 1.1rem;
+        margin: 0 10px;
+        order: 0;
+        flex: 0 0 auto;
+    }
+
+    .round-info {
+        font-size: 0.95rem;
+        order: 3;
+    }
+
+    .scoreboard .round-info {
+        flex-basis: 100%;
+        width: 100%;
+        margin-top: 10px;
+        order: 3;
+    }
+
+    /* Selección de movimientos */
+    .move-selection {
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    .move-selection h2 {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+
+    .selection-groups-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .selection-group {
+        padding: 15px;
+    }
+
+    .selection-group h3 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    .instruction {
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }
+
+    /* Porterías */
+    .goal-container {
+        margin: 15px 0;
+    }
+
+    .goal-wrapper {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .goal-image {
+        width: 100%;
+    }
+
+    #submitMoveBtn {
+        width: 100%;
+        max-width: 100%;
+        padding: 12px;
+        font-size: 1rem;
+        margin-top: 15px;
+    }
+
+    /* Resultados de ronda */
+    .round-result {
+        padding: 15px;
+    }
+
+    .round-result-header h3 {
+        font-size: 1.1rem;
+    }
+
+    .animation-container {
+        margin-bottom: 20px;
+    }
+
+    .animation-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .animation-item {
+        padding: 10px;
+    }
+
+    .animation-item h4 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    .goal-animation-wrapper {
+        min-height: 200px;
+        padding: 10px;
+    }
+
+    .goal-result-wrapper {
+        max-width: 100%;
+    }
+
+    .result-details {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .result-item {
+        padding: 12px;
+    }
+
+    .result-item strong {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+
+    .result-item p {
+        font-size: 0.9rem;
+        margin: 4px 0;
+    }
+
+    .result-item .points {
+        font-size: 1.1rem;
+        margin-top: 8px;
+    }
+
+    .total-scores {
+        padding: 12px;
+        font-size: 1rem;
+    }
+
+    .total-scores strong {
+        font-size: 1.3rem;
+    }
+
+    .result-actions {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 15px;
+        padding-top: 15px;
+    }
+
+    .result-actions button {
+        width: 100%;
+        min-width: unset;
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+
+    /* Pantalla final */
+    .end-content {
+        padding: 20px 15px;
+        max-width: 100%;
+    }
+
+    .end-content h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    .winner-text {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        letter-spacing: 0.5px;
+    }
+
+    .final-scores {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .final-score-item {
+        font-size: 1rem;
+    }
+
+    .final-score-item span:last-child {
+        font-size: 1.5rem;
+    }
+
+    .end-actions {
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    #endScreen .end-actions .btn {
+        width: 100%;
+        max-width: 100%;
+        height: 50px;
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+
+    /* Modales */
+    .modal-content {
+        width: 95%;
+        max-width: 95%;
+        max-height: 90vh;
+    }
+
+    .modal-header {
+        padding: 15px;
+    }
+
+    .modal-header h4 {
+        font-size: 1.1rem;
+    }
+
+    .modal-body {
+        padding: 15px;
+    }
+
+    .modal-body p {
+        font-size: 0.9rem;
+    }
+
+    .modal-body ul {
+        font-size: 0.9rem;
+    }
+
+    .modal-footer {
+        padding: 12px 15px;
+    }
+
+    .stats-grid-modal {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .stat-block-modal {
+        padding: 15px;
+    }
+
+    .stat-block-modal strong {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+
+    .stat-row {
+        padding: 10px 0;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+    }
+
+    .stat-value {
+        font-size: 1rem;
+        padding: 3px 10px;
+    }
+
+    .stat-value-large {
+        font-size: 1.2rem;
+    }
+
+    /* Notificaciones */
+    .notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        padding: 12px 18px;
+        font-size: 0.9rem;
+        border-radius: 8px;
+    }
+
+    /* Botones generales */
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        border-radius: 8px;
+    }
+
+    /* Footer */
+    footer {
+        padding: 10px;
+        font-size: 0.8rem;
+    }
+
+    /* Ajustes específicos para elementos pequeños */
+    .user-icon {
+        font-size: 0.75em;
+    }
+
+    .hit-badge {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+    }
+
+    .scoring-explanation {
+        padding: 12px;
+        font-size: 0.85rem;
+    }
+
+    .scoring-explanation p {
+        font-size: 0.85rem;
+    }
+
+    .scoring-explanation ul {
+        font-size: 0.85rem;
+    }
+
+    /* Ajustes para zonas de portería en móvil */
+    .zone-overlay .zone:focus {
+        outline-width: 2px;
+        outline-offset: 1px;
+    }
+
+    .zone-overlay .zone.selected {
+        border-width: 2px !important;
+    }
+
+    /* Ajustes de texto en móvil */
+    .player-name-text {
+        font-size: 0.85rem;
+    }
+
+    /* Ajustes para pantalla de espera de oponente */
+    .waiting-opponent {
+        padding: 20px 10px;
+    }
+
+    .waiting-opponent p {
+        font-size: 0.95rem;
+    }
+
+    /* Ajustes para radio buttons en móvil */
+    .radio-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .radio-label {
+        min-width: 100%;
+        padding: 12px;
+    }
+
+    /* Ajustes para estadísticas finales */
+    .final-stats {
+        padding: 12px;
+        margin-top: 15px;
+    }
+
+    .stats-grid {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .stat-block {
+        min-width: 100%;
+        padding: 10px;
+    }
+
+    .stat-block strong {
+        font-size: 0.95rem;
+        margin-bottom: 6px;
+    }
+
+    /* Ajustes para imágenes de animación */
+    .ball {
+        width: 8%;
+    }
+
+    /* Escalar imágenes PNG de porteros en móvil */
+    .zone-indicator {
+        transform: translate(-50%, -50%) scale(0.12) !important;
+    }
+
+    .zone-indicator.show {
+        transform: translate(-50%, -50%) scale(0.12) !important;
+    }
+
+    /* Ajustar animaciones de porteros para móvil */
+    .zone-indicator.zone-top,
+    .zone-indicator.zone-bottom,
+    .zone-indicator.zone-left,
+    .zone-indicator.zone-right,
+    .zone-indicator.zone-top-left,
+    .zone-indicator.zone-top-right,
+    .zone-indicator.zone-bottom-left,
+    .zone-indicator.zone-bottom-right {
+        transform: translate(-50%, -50%) scale(0.18) !important;
+    }
+
+    /* Ajustar posiciones iniciales en animaciones */
+    @keyframes porterJump {
+        0% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+        50% {
+            transform: translate(-50%, calc(-50% - 0.8%)) scale(0.1801);
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+    }
+
+    @keyframes porterDive {
+        0% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+        50% {
+            transform: translate(-50%, calc(-50% + 0.8%)) scale(0.1799);
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+    }
+
+    @keyframes porterMoveLeft {
+        0% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+        50% {
+            transform: translate(calc(-50% - 0.8%), -50%) scale(0.1801);
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+    }
+
+    @keyframes porterMoveRight {
+        0% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+        50% {
+            transform: translate(calc(-50% + 0.8%), -50%) scale(0.1801);
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+    }
+
+    @keyframes porterJumpLeft {
+        0% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+        50% {
+            transform: translate(calc(-50% - 0.8%), calc(-50% - 0.8%)) scale(0.1801);
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+    }
+
+    @keyframes porterJumpRight {
+        0% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+        50% {
+            transform: translate(calc(-50% + 0.8%), calc(-50% - 0.8%)) scale(0.1801);
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+    }
+
+    @keyframes porterDiveLeft {
+        0% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+        50% {
+            transform: translate(calc(-50% - 0.8%), calc(-50% + 0.8%)) scale(0.1799);
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+    }
+
+    @keyframes porterDiveRight {
+        0% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+        50% {
+            transform: translate(calc(-50% + 0.8%), calc(-50% + 0.8%)) scale(0.1799);
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(0.18);
+        }
+    }
+
+    /* Mejorar touch targets en móvil */
+    .zone-overlay .zone {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Ajustes para inputs y controles */
+    input[type="text"],
+    input[type="radio"] {
+        min-height: 44px;
+    }
+
+    /* Ajustes de espaciado general */
+    .game-header {
+        margin-bottom: 15px;
+    }
+
+    #gameScreen .game-content {
+        gap: 15px;
+    }
+
+    /* Ajustes para texto largo */
+    .player-name {
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Ajustes para botones de información */
+    .info-icon-btn {
+        font-size: 1rem;
+        padding: 8px;
+    }
+
+    /* Ajustes para close buttons en modales */
+    .close-modal-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 1.5rem;
+    }
 }
 

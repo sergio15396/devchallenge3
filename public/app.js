@@ -899,6 +899,14 @@ function getZoneAnimationClass(zoneNum) {
     return "";
 }
 
+// Función helper para obtener el scale correcto según el tamaño de pantalla
+function getPorterScale() {
+    if (window.innerWidth <= 480) {
+        return 0.12; // Scale para móvil (reducido 70% adicional desde 0.39)
+    }
+    return 0.22; // Scale para desktop
+}
+
 function getPorterPosition(zoneNum, shrink = 1) {
     const row = Math.floor((zoneNum - 1) / 3);
     const col = (zoneNum - 1) % 3;
@@ -951,7 +959,8 @@ function showPlayerResult(playerNum, shootMove, saveMove, score, playerName) {
     zoneIndicator.className = "zone-indicator show";
     zoneIndicator.style.left = `${centerPosition.left}%`;
     zoneIndicator.style.top = `${centerPosition.top}%`;
-    zoneIndicator.style.transform = "translate(-50%, -50%) scale(0.22)";
+    const porterScale = getPorterScale();
+    zoneIndicator.style.transform = `translate(-50%, -50%) scale(${porterScale})`;
     zoneIndicator.src = `img/p5.png`;
     zoneIndicator.alt = `Porter zona 5`;
     zoneIndicator.style.opacity = "1";
@@ -1031,7 +1040,8 @@ function replayAnimation() {
             porter.style.transition = "none";
             porter.style.left = `${centerPos.left}%`;
             porter.style.top = `${centerPos.top}%`;
-            porter.style.transform = "translate(-50%, -50%) scale(0.22)";
+            const porterScale = getPorterScale();
+            porter.style.transform = `translate(-50%, -50%) scale(${porterScale})`;
             porter.src = "img/p5.png";
             porter.style.opacity = "1";
         }
@@ -1389,7 +1399,8 @@ socket.on("roundResult", (data) => {
             porter.style.opacity = "1";
             porter.style.left = `${centerPos.left}%`;
             porter.style.top = `${centerPos.top}%`;
-            porter.style.transform = "translate(-50%, -50%) scale(0.22)";
+            const porterScale = getPorterScale();
+            porter.style.transform = `translate(-50%, -50%) scale(${porterScale})`;
         }
     });
 
@@ -1612,8 +1623,18 @@ socket.on("tiebreakerRound", (data) => {
     const zoneIndicator2 = document.getElementById('zoneIndicator2');
     if (ball1) { ball1.style.opacity = '0'; ball1.style.transition = ''; }
     if (ball2) { ball2.style.opacity = '0'; ball2.style.transition = ''; }
-    if (zoneIndicator1) { zoneIndicator1.className = 'zone-indicator'; zoneIndicator1.src = 'img/p5.png'; }
-    if (zoneIndicator2) { zoneIndicator2.className = 'zone-indicator'; zoneIndicator2.src = 'img/p5.png'; }
+    if (zoneIndicator1) { 
+        zoneIndicator1.className = 'zone-indicator'; 
+        zoneIndicator1.src = 'img/p5.png';
+        const porterScale = getPorterScale();
+        zoneIndicator1.style.transform = `translate(-50%, -50%) scale(${porterScale})`;
+    }
+    if (zoneIndicator2) { 
+        zoneIndicator2.className = 'zone-indicator'; 
+        zoneIndicator2.src = 'img/p5.png';
+        const porterScale = getPorterScale();
+        zoneIndicator2.style.transform = `translate(-50%, -50%) scale(${porterScale})`;
+    }
 
     if (submitMoveBtn) {
         submitMoveBtn.disabled = true; // Se habilitará cuando se seleccionen ambas zonas
@@ -1814,7 +1835,8 @@ function continueToNextRound() {
             porter.src = "img/p5.png";
             porter.style.left = `${centerPos.left}%`;
             porter.style.top = `${centerPos.top}%`;
-            porter.style.transform = "translate(-50%, -50%) scale(0.22)";
+            const porterScale = getPorterScale();
+            porter.style.transform = `translate(-50%, -50%) scale(${porterScale})`;
         }
     });
     
